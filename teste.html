@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Gravador de Áudio</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+button {
+    font-size: 16px;
+    padding: 10px;
+    margin: 5px;
+}
+</style>
+</head>
+<body>
+<button id="recordButton">Gravar</button>
+<button id="stopButton" disabled>Parar</button>
+<script>
+let mediaRecorder;
+let audioChunks = [];
+
+document.getElementById("recordButton").addEventListener("click", function() {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.start();
+            audioChunks = [];
+
+            this.disabled = true;
+            document.getElementById("stopButton").disabled = false;
+
+            mediaRecorder.ondataavailable = function(e) {
+                audioChunks.push(e.data);
+            };
+        })
+        .catch(err => {
+            console.error("Erro ao acessar o microfone:", err);
+        });
+});
+
+document.getElementById("stopButton").addEventListener("click", function() {
+    mediaRecorder.stop();
+    this.disabled = true;
+    document.getElementById("recordButton").disabled = false;
+
+    mediaRecorder.onstop = async function() {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+        const reader = new FileReader();
+
+        reader.onloadend = function() {
+            const base64AudioMessage = reader.result.toString().split(',')[1];
+
+            // Aqui você pode interagir com o Typebot ou armazenar a variável
+            console.log(base64AudioMessage); // Saída da string base64 no console para teste
+        };
+
+        reader.readAsDataURL(audioBlob);
+    };
+});
+</script>
+</body>
+</html>
