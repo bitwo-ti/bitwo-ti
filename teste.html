@@ -19,6 +19,17 @@ button {
 <button id="recordButton">Gravar</button>
 <button id="stopButton" disabled>Parar</button>
 <script>
+
+navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => {
+        console.log('Microfone acessado!');
+        // Você pode agora usar o stream do microfone
+    })
+    .catch(error => {
+        console.error('Acesso ao microfone negado!', error);
+    });
+    
+    
 let mediaRecorder;
 let audioChunks = [];
 
